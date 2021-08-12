@@ -31,8 +31,8 @@
 import VProgress from './SideBarFileManagerProgressBar'
 import Worker from '../tools/parsers/parser.worker.js'
 import {store} from './Globals'
-
 import {MAVLink} from 'mavlink_common_v1.0'
+import tempData from './uav'
 
 const worker = new Worker()
 
@@ -203,23 +203,40 @@ export default {
         }
     },
     mounted () {
-        worker.onmessage = (event) => {
-            if (event.data.hasOwnProperty('percentage')) {
-                this.state.processPercentage = event.data.percentage
-            } else if (event.data.hasOwnProperty('availableMessages')) {
-                this.$eventHub.$emit('messageTypes', event.data.availableMessages)
-            } else if (event.data.hasOwnProperty('metadata')) {
-                this.state.metadata = event.data.metadata
-            } else if (event.data.hasOwnProperty('messages')) {
-                this.state.messages = event.data.messages
-                this.$eventHub.$emit('messages')
-            } else if (event.data.hasOwnProperty('messageType')) {
-                this.state.messages[event.data.messageType] = event.data.messageList
-                this.$eventHub.$emit('messages')
-            } else if (event.data.hasOwnProperty('url')) {
-                this.downloadFileFromURL(event.data.url)
+        setTimeout(() => {
+            this.state.file = 'file.name'
+            this.state.processStatus = 'Pre-processing...'
+            this.state.processPercentage = 100
+            this.state.logType = 'bin'
+            this.state.messages = tempData.messages
+            this.$eventHub.$emit('messages')
+            this.$eventHub.$emit('messageTypes', tempData.availableMessages)
+            this.state.metadata = {
+                metadata: {
+                    'startTime': '2021-08-09T07:55:45.200Z'
+                }
             }
-        }
+        }, 1000)
+        // worker.onmessage = (event) => {
+        //     console.log(88899, event.data)
+        //     if (event.data.hasOwnProperty('percentage')) {
+        //         this.state.processPercentage = event.data.percentage
+        //     } else if (event.data.hasOwnProperty('availableMessages')) {
+        //         this.$eventHub.$emit('messageTypes', event.data.availableMessages)
+        //     } else if (event.data.hasOwnProperty('metadata')) {
+        //         this.state.metadata = event.data.metadata
+        //     } else if (event.data.hasOwnProperty('messages')) {
+        //         // console.log(88899, event.data)
+        //         this.state.messages = event.data.messages
+        //         this.$eventHub.$emit('messages')
+        //     } else if (event.data.hasOwnProperty('messageType')) {
+        //         // console.log(88899, JSON.stringify(event.data.messageList))
+        //         this.state.messages[event.data.messageType] = event.data.messageList
+        //         this.$eventHub.$emit('messages')
+        //     } else if (event.data.hasOwnProperty('url')) {
+        //         this.downloadFileFromURL(event.data.url)
+        //     }
+        // }
         if (this.$route.params.hasOwnProperty('id')) {
             this.onLoadSample(this.$route.params.id)
         }
